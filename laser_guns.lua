@@ -1,8 +1,8 @@
 --@name Projectiles, damage and ETC
 --@author AstricUnion (Base) / vertihluy
 --@shared
---@include https://raw.githubusercontent.com/AstricUnion/Libs/refs/heads/main/ftimers.lua as ftimers
---@include https://raw.githubusercontent.com/AstricUnion/Libs/refs/heads/main/holos.lua as holos
+--@include https://raw.githubusercontent.com/PEDROWELES/Gnet/refs/heads/main/laser_ftimer.lua as ftimers
+--@include https://raw.githubusercontent.com/PEDROWELES/Gnet/refs/heads/main/laser_holo.lua as holos
 ---@class FTimer
 local FTimer = require("ftimers")
 
