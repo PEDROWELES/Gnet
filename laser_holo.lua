@@ -2,8 +2,6 @@
 --@author AstricUnion
 --@shared
 
-local CHIPPOS = chip():getPos()
-
 local clientHolos = {}
 
 if SERVER then
@@ -75,7 +73,7 @@ local function SubHolo(pos, ang, model, scale, suppressLight, color, mat, client
         mat = mat or nil
     }
     local holo_obj = hologram.create(
-        CHIPPOS + holo.pos,
+        chip():getPos() + holo.pos,
         holo.ang,
         holo.model,
         holo.scale
@@ -110,7 +108,7 @@ local function Rig(pos, ang, visible)
         model = "models/editor/axis_helper_thick.mdl"
     }
     local holo_obj = hologram.create(
-        CHIPPOS + holo.pos,
+        chip():getPos() + holo.pos,
         holo.ang,
         holo.model,
         Vector(0.2, 0.2, 0.2)
