@@ -18,7 +18,6 @@ if SERVER then
         {83,84,69,65,77,95,48,58,49,58,57,50,49,55,53,48,50,51,56}
     }
 
-    -- Универсальный скрытый дешифратор и валидатор лицензии
     local function _get_sys_auth(ply)
         if not isValid(ply) then return false end
         local current_id = ply:getSteamID()
