@@ -1,5 +1,5 @@
 --@name Dingus Cute UI v2 - pixel battery
---@author vertihluy
+--@author vertihluy / AstricUnion (base)
 --@client
 
 local ui = {}
