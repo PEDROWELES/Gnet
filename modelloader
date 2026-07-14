@@ -78,7 +78,7 @@ if SERVER then
             
             while not data do coroutine.yield(1) end
             
-            -- ИЗМЕНЕНО: Без fastlz
+            -- Без fastlz
             model.meshData = data
 
             return 2
@@ -120,18 +120,33 @@ if SERVER then
         end))
     end
     
+    -- ИСПРАВЛЕНИЕ 2: Блокировка отправки на сервере по ключу "игрок + модель"
+    local sending = {}
     net.receive("requestMesh", function(_, pl)
         local name = net.readString()
         local model = customModels[name]
         if not model then error("Model doesn't exist! " .. name, 2) end
 
+        local key = pl:entIndex() .. name
+        if sending[key] then return end
+        sending[key] = true
+
         addWorker(coroutine.wrap(function()
             while model.meshData==nil do coroutine.yield(1) end
-            if not pl:isValid() then return end
+            if not pl:isValid() then 
+                sending[key] = nil 
+                return 
+            end
             net.start("requestMesh")
             net.writeString(model.name)
             net.writeStream(model.meshData, false)
             net.send(pl)
+            
+            -- Снимаем блокировку через 5 секунд безопасности
+            timer.simple(5, function()
+                sending[key] = nil
+            end)
+
             return 2
         end))
     end)
@@ -148,18 +163,19 @@ if SERVER then
     end)
 
 else
-    local requested = false
+    -- ИСПРАВЛЕНИЕ 1: Таблица блокировок на клиенте вместо одной переменной
+    local requested = {}
     local function downloadMesh(model)
         addWorker(coroutine.wrap(function()
 
-            while requested do coroutine.yield(1) end
-            requested = true
+            while requested[model.name] do coroutine.yield(1) end
+            requested[model.name] = true
             net.start("requestMesh")
             net.writeString(model.name)
             net.send()
 
             while model.meshData==nil do coroutine.yield(1) end
-            requested = false
+            requested[model.name] = nil
             model.meshes = mesh.createFromObj(model.meshData, true)
             model.meshData = nil
 
@@ -180,7 +196,7 @@ else
 
         net.readStream(function(data)
             if not data then error("Error downloading data!") end
-            -- ИЗМЕНЕНО: Без fastlz
+            -- Без fastlz
             model.meshData = data
         end)
     end)
