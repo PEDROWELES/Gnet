@@ -120,12 +120,12 @@ if SERVER then
         end))
     end
     
-    -- ИСПРАВЛЕНИЕ 2: Блокировка отправки на сервере по ключу "игрок + модель"
+    -- Исправленная серверная часть с использованием callback внутри writeStream
     local sending = {}
     net.receive("requestMesh", function(_, pl)
         local name = net.readString()
         local model = customModels[name]
-        if not model then error("Model doesn't exist! " .. name, 2) end
+        if not model then return end
 
         local key = pl:entIndex() .. name
         if sending[key] then return end
@@ -137,16 +137,16 @@ if SERVER then
                 sending[key] = nil 
                 return 
             end
+            
             net.start("requestMesh")
             net.writeString(model.name)
-            net.writeStream(model.meshData, false)
-            net.send(pl)
             
-            -- Снимаем блокировку через 5 секунд безопасности
-            timer.simple(5, function()
+            -- Заменили timer.simple на официальный колбэк завершения стрима
+            net.writeStream(model.meshData, function()
                 sending[key] = nil
             end)
-
+            
+            net.send(pl)
             return 2
         end))
     end)
@@ -163,7 +163,6 @@ if SERVER then
     end)
 
 else
-    -- ИСПРАВЛЕНИЕ 1: Таблица блокировок на клиенте вместо одной переменной
     local requested = {}
     local function downloadMesh(model)
         addWorker(coroutine.wrap(function()
