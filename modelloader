@@ -1,28 +1,3 @@
---@name CustomModelLib
---@author Sparky
---@shared
-
--- EXAMPLE
-
--- local customModel = require("libs/custommodellib.txt")
-
--- local mat
--- if CLIENT then
---     mat = material.create("VertexLitGeneric")
---     mat:setInt("$flags",138414080)
---     mat:setTextureURL("$basetexture", "https://dl.dropboxusercontent.com/s/tj6h9xc3mfe6o7w/sfmodel.jpg",function(_,_,_,_,cb) cb(0,0,1024,1024) end)
-
--- end
-
--- customModel.register("cylinder","https://dl.dropboxusercontent.com/s/b0yrw0scmlcgkak/sfmodel.obj", "https://dl.dropboxusercontent.com/s/b0yrw0scmlcgkak/sfmodel.obj", "flesh", {Cylinder=mat})
-
--- if SERVER then
---     customModel.spawn("cylinder",chip():getPos()+Vector(0,0,150),chip():getAngles(),function(e)
---         e:setMass(1000)
---     end)
--- end
-
-
 local customModels = {}
 local customModel = {}
 
@@ -103,7 +78,8 @@ if SERVER then
             
             while not data do coroutine.yield(1) end
             
-            model.meshData = fastlz.compress(data)
+            -- ИЗМЕНЕНО: Без fastlz
+            model.meshData = data
 
             return 2
         end))
@@ -204,8 +180,7 @@ else
 
         net.readStream(function(data)
             if not data then error("Error downloading data!") end
-            data = fastlz.decompress(data)
-            if not data then error("Data was corrupted!") end
+            -- ИЗМЕНЕНО: Без fastlz
             model.meshData = data
         end)
     end)
